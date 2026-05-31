@@ -1,0 +1,12 @@
+{
+	"path": {
+		"main": "src/main",
+		"lib": "src/lib",
+		"module": "src/module",
+		"include": "src/include",
+		"obj": "obj",
+		"bin": "bin"
+	},
+	"resedent": [
+	]
+}
