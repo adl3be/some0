@@ -3,12 +3,12 @@ use JSON;
 
 
 my %config = from_json(cat(q(config.json)))->%*;
-my %requirment = from_json(cat(q(requirments.json)))->%*;
+my %requirment = from_json(cat(q(requirment.json)))->%*;
 
 
 
 
-push $config{resedent}->@*, qw(requirments.json config.json make);
+push $config{resedent}->@*, qw(requirment.json config.json make);
 $ENV{CFLAGS} .= qq( -I$config{path}{include} );
 
 

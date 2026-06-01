@@ -5,7 +5,7 @@
 
 
 /* kinda private functions */
-unsigned char* itoa_serial (unsigned char*, unsigned int*);
+char* itoa_serial (char*, unsigned int*);
 
 
 
@@ -13,7 +13,7 @@ unsigned char* itoa_serial (unsigned char*, unsigned int*);
 
 
 
-int easyconnect_to (unsigned char* to)
+int easyconnect_to (char* to)
 {
 	struct sockaddr				sa = easyconnect_str_to_sa(to);
 	int							sd;
@@ -28,7 +28,7 @@ int easyconnect_to (unsigned char* to)
 
 
 
-int easyconnect_on (unsigned char* on, int count)
+int easyconnect_on (char* on, int count)
 {
 	struct sockaddr				sa = easyconnect_str_to_sa(on);
 	int							sd;
@@ -48,7 +48,7 @@ int easyconnect_on (unsigned char* on, int count)
 
 
 
-struct sockaddr easyconnect_str_to_sa (unsigned char* str)
+struct sockaddr easyconnect_str_to_sa (char* str)
 {
 	struct sockaddr				sa;
 	unsigned int				ipv4;
@@ -80,7 +80,7 @@ struct sockaddr easyconnect_str_to_sa (unsigned char* str)
 
 
 
-unsigned int easyconnect_str_to_ipv4 (unsigned char* str)
+unsigned int easyconnect_str_to_ipv4 (char* str)
 {
 	unsigned int				res = 0;
 	unsigned int				tmp = 0;
@@ -101,7 +101,7 @@ unsigned int easyconnect_str_to_ipv4 (unsigned char* str)
 }
 
 
-unsigned int easyconnect_str_to_port (unsigned char* str)
+unsigned int easyconnect_str_to_port (char* str)
 {
 	unsigned int				res = 0;
 
@@ -111,7 +111,7 @@ unsigned int easyconnect_str_to_port (unsigned char* str)
 }
 
 
-unsigned char* itoa_serial (unsigned char* str, unsigned int* num)
+char* itoa_serial (char* str, unsigned int* num)
 {
 	*num = 0;
 

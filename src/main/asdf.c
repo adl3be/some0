@@ -1,20 +1,44 @@
-#include <unistd.h>
-#include <easyconnect.h>
-#include <sys/socket.h>
+#include <textserver.h>
+
+
+
+textserver_msg_t on_init (int);
+textserver_msg_t on_request (int, char*, int);
+textserver_msg_t on_close (int);
 
 
 
 int main (int argc, char* argv[], char* env[])
 {
-	int							sd;
-	int							cl;
+	return textserver_run(
+			"127.0.0.1:54321", 
+			on_init,
+			on_request,
+			on_close
+	);
+}
 
 
-	if ( !argv[1] )																												return 1;
-	sd = easyconnect_on(argv[1], 16);																							if (!~sd) return 2;
-	cl = accept(sd, NULL, NULL);																								if (!~cl) return 3;
-	write(cl, "Hi, dude!\n", 10);
 
 
-	return 0;
+textserver_msg_t on_init (int d)
+{
+	textserver_msg_t			res = { .len = 7, .data = "Hello!\n", .must_be_freed = 0 };
+	return res;
+}
+
+
+
+textserver_msg_t on_request (int d, char* str, int len)
+{
+	textserver_msg_t			res = { .len = 7, .data = "Hello!\n", .must_be_freed = 0 };
+	return res;
+}
+
+
+
+textserver_msg_t on_close (int d)
+{
+	textserver_msg_t			res = { .len = 7, .data = "Hello!\n", .must_be_freed = 0 };
+	return res;
 }

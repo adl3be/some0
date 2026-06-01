@@ -3,12 +3,12 @@
 
 
 
-int easyconnect_to (unsigned char*);
-int easyconnect_on (unsigned char*, int);
+int easyconnect_to (char*);
+int easyconnect_on (char*, int);
 
-struct sockaddr easyconnect_str_to_sa (unsigned char*);
-unsigned int easyconnect_str_to_ipv4 (unsigned char*);
-unsigned int easyconnect_str_to_port (unsigned char*);
+struct sockaddr easyconnect_str_to_sa (char*);
+unsigned int easyconnect_str_to_ipv4 (char*);
+unsigned int easyconnect_str_to_port (char*);
 
 
 
