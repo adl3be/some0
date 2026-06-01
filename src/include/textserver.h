@@ -10,12 +10,8 @@ typedef struct textserver_msg_s {
 } textserver_msg_t, *textserver_msg_p;
 
 
-int								textserver_max_client = 128;
-textserver_msg_t				textserver_bye_msg = {
-	.len						= 5,
-	.data						= "Bye!\n",
-	.must_be_freed				= 0
-};
+extern int						textserver_max_client;
+extern textserver_msg_t			textserver_bye_msg;
 
 
 

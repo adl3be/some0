@@ -7,6 +7,18 @@
 
 
 
+int								textserver_max_client = 128;
+textserver_msg_t				textserver_bye_msg = {
+	.len						= 5,
+	.data						= "Bye!\n",
+	.must_be_freed				= 0
+};
+
+
+
+
+
+
 
 int textserver_run (
 		char* address,

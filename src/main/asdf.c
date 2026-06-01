@@ -11,7 +11,7 @@ textserver_msg_t on_close (int);
 int main (int argc, char* argv[], char* env[])
 {
 	return textserver_run(
-			"127.0.0.1:54321", 
+			"127.0.0.1:54321\0", 
 			on_init,
 			on_request,
 			on_close
