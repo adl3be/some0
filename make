@@ -10,6 +10,7 @@ my %requirment = from_json(cat(q(requirment.json)))->%*;
 
 push $config{resedent}->@*, qw(requirment.json config.json make);
 $ENV{CFLAGS} .= qq( -I$config{path}{include} );
+map { &build_dirtree($_) } values $config{path}->%*;
 
 
 &Task::process_tasks(@ARGV);
@@ -82,8 +83,8 @@ package Task {
 
 	sub clean
 	{
-		unlink $_ foreach <$config{path}{bin}/*>;
-		unlink $_ foreach <$config{path}{obj}/*>;
+		unlink $_ foreach <$config{path}{bin}/*>;	rmdir $config{path}{bin};
+		unlink $_ foreach <$config{path}{obj}/*>;	rmdir $config{path}{obj};
 		foreach my $file (<*>)
 		{
 			next		if -d $file;
@@ -116,6 +117,24 @@ sub cat
 	return $txt;
 }
 
+
+
+sub build_dirtree
+{
+	foreach my $this (@_)
+	{
+		my @dir = split m|/|, $this;
+		mkdir $dir[0];
+
+		if ( @dir > 1 ) {
+			my $here = $ENV{PWD};
+
+			chdir $dir[0];
+			&build_dirtree(@dir[-1..1]);
+			chdir $here;
+		}
+	}
+}
 
 
 
