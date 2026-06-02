@@ -4,7 +4,7 @@
 
 textserver_msg_t on_init (int);
 textserver_msg_t on_request (int, char*, int);
-textserver_msg_t on_close (int);
+void on_close (int);
 
 
 
@@ -37,8 +37,8 @@ textserver_msg_t on_request (int d, char* str, int len)
 
 
 
-textserver_msg_t on_close (int d)
+void on_close (int d)
 {
 	textserver_msg_t			res = { .len = 7, .data = "Hello!\n", .must_be_freed = 0 };
-	return res;
+	textserver_running = 0;
 }

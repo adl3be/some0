@@ -12,6 +12,7 @@ typedef struct textserver_msg_s {
 
 extern int						textserver_max_client;
 extern textserver_msg_t			textserver_bye_msg;
+extern int						textserver_running;
 
 
 
@@ -19,7 +20,7 @@ int textserver_run (
 		char* address,
 		textserver_msg_t (*on_accept) (int),
 		textserver_msg_t (*on_request) (int, char*, int),
-		textserver_msg_t (*on_close) (int)
+		void (*on_close) (int)
 );
 
 

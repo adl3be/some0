@@ -1,11 +1,13 @@
 #include <easyconnect.h>
 #include <sys/socket.h>
-#include <string.h>
+#include <unistd.h>
 
 
 
 /* kinda private functions */
 char* itoa_serial (char*, unsigned int*);
+char* get_addr_str (char*);
+char* get_port_str (char*);
 
 
 
@@ -17,9 +19,11 @@ int easyconnect_to (char* to)
 {
 	struct sockaddr				sa = easyconnect_str_to_sa(to);
 	int							sd;
+	int							param = 1;
 
 
 	sd = socket(AF_INET, SOCK_STREAM, 0);																						if (!~sd) return -1;
+	if ( setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &param, sizeof(int)) )														{ close(sd); return -1; }
 	if ( connect(sd, &sa, 16) )																									return -1;
 
 
@@ -53,12 +57,9 @@ struct sockaddr easyconnect_str_to_sa (char* str)
 	struct sockaddr				sa;
 	unsigned int				ipv4;
 	unsigned int				port;
-	char*						delimiter = " :-";
 
 
-	str = strtok(str, delimiter);
 	ipv4 = easyconnect_str_to_ipv4(str);
-	str = strtok(NULL, delimiter);
 	port = easyconnect_str_to_port(str);
 
 	sa.sa_family		= AF_INET;
@@ -105,6 +106,8 @@ unsigned int easyconnect_str_to_port (char* str)
 {
 	unsigned int				res = 0;
 
+	while ( *str && (*str != ':') )	str++;
+	str++;
 	itoa_serial(str, &res);
 
 	return res;
