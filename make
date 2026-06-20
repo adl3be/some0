@@ -130,7 +130,7 @@ sub build_dirtree
 			my $here = $ENV{PWD};
 
 			chdir $dir[0];
-			&build_dirtree(@dir[-1..1]);
+			&build_dirtree(@dir[1..$#dir]);
 			chdir $here;
 		}
 	}

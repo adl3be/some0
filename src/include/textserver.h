@@ -2,26 +2,23 @@
 #define TEXTSERVER_H
 
 
-
-typedef struct textserver_msg_s {
-	unsigned int				len;
-	unsigned char*				data;
-	int							must_be_freed;
-} textserver_msg_t, *textserver_msg_p;
+#define TEXTSERVER_POLLQ		1024
 
 
+
+extern char*					textserver_host;
 extern int						textserver_max_client;
-extern textserver_msg_t			textserver_bye_msg;
 extern int						textserver_running;
 
+extern char*					(*textserver_hook_on_accept) (int);
+extern char*					(*textserver_hook_on_request) (int, char*, int);
+extern char*					(*textserver_hook_on_close) (int);
+extern void						(*textserver_hook_after_accept) (int, char*);
+extern void						(*textserver_hook_after_request) (int, char*);
+extern void						(*textserver_hook_after_close) (int, char*);
 
 
-int textserver_run (
-		char* address,
-		textserver_msg_t (*on_accept) (int),
-		textserver_msg_t (*on_request) (int, char*, int),
-		void (*on_close) (int)
-);
+int textserver_run ();
 
 
 

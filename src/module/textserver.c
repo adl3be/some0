@@ -9,44 +9,59 @@
 
 
 /* kinda private functions */
-int talk (int, textserver_msg_t (*) (int, char*, int), void (*) (int));
-int procedure_accept (int, textserver_msg_t (*) (int));
-int procedure_request (int, char*, int, textserver_msg_t (*) (int, char*, int));
-int procedure_close (int, void (*) (int));
+struct pollfd					pfd[TEXTSERVER_POLLQ] = {};
+int								pfd_curr = 0;
+int								pfd_done = 0;
+
+void pfd_add (int);
+void pfd_del (int);
+void pfd_check ();
+
+void talk (int);
+void procedure_accept ();
+void procedure_request (int, char*, int);
+void procedure_close (int);
+
+/* default hooks */
 
 
 
 
-int								textserver_running = 0;
+
+
+char*							textserver_host = "127.0.0.1:54321";
 int								textserver_max_client = 128;
-textserver_msg_t				textserver_bye_msg = {
-	.len						= 5,
-	.data						= "Bye!\n",
-	.must_be_freed				= 0
-};
+int								textserver_running = 0;
+
+char*							(*textserver_hook_on_accept) (int);
+char*							(*textserver_hook_on_request) (int, char*, int);
+char*							(*textserver_hook_on_close) (int);
+void							(*textserver_hook_after_accept) (int, char*);
+void							(*textserver_hook_after_request) (int, char*);
+void							(*textserver_hook_after_close) (int, char*);
 
 
 
 
 
 
-
-int textserver_run (
-		char* address,
-		textserver_msg_t (*on_accept) (int),
-		textserver_msg_t (*on_request) (int, char*, int),
-		void (*on_close) (int)
-)
+int textserver_run ()
 {
-	int							listener = easyconnect_on(address, textserver_max_client);										if (!~listener) return 1;
-	int							client = accept(listener, NULL, NULL);															if (!~client) return 2;
-	struct pollfd				fds[] = { { .fd = client, .events = POLLIN } };
+	int							listener = easyconnect_on(textserver_host, textserver_max_client);								if (!~listener) return -1;
 
+
+	pfd_curr = 0;
+	for (int i = 0; i < TEXTSERVER_POLLQ; i++) {
+		pfd[i].fd		= 0;
+		pfd[i].events	= 0;
+		pfd[i].revents	= 0;
+	}
+	pfd_add(listener);
 
 	textserver_running = 1;
 	while ( textserver_running ) {
-		poll(fds, 1, -1);
-		talk(client, on_request, on_close);
+		pfd_done = poll(pfd, pfd_curr, -1);																						if (pfd_done < 0) return -1;
+		pfd_check();
 	}
 
 
@@ -56,47 +71,80 @@ int textserver_run (
 
 
 
+void pfd_add (int fd)
+{
+	int							i = pfd_curr++;
 
-int talk (int d, textserver_msg_t (*on_talk) (int, char*, int), void (*on_leave) (int))
+	pfd[i].fd		= fd;
+	pfd[i].events	= POLLIN;
+	pfd[i].revents	= 0;
+}
+
+void pfd_del (int i)
+{
+	int							n = --pfd_curr;
+
+	pfd[i].fd		= pfd[n].fd;
+	pfd[i].events	= pfd[n].events;
+	pfd[i].revents	= pfd[n].revents;
+}
+
+void pfd_check ()
+{
+	if ( pfd[0].revents & POLLIN ) procedure_accept();
+
+	for (int i = 1; pfd_done && i < pfd_curr; i++) {
+		if ( !pfd[i].revents )					continue;
+
+		if ( pfd[i].revents & POLLIN ) {
+			talk(i);
+			pfd_done--;
+		} else {
+			textserver_running = 0;
+		}
+	}
+}
+
+
+
+void talk (int i)
 {
 	unsigned char				buffer[65536];
 	int							len;
-	
-	len = read(d, buffer, 65536);																								if (!~len) return 1;
-	if ( len )		return procedure_request(d, buffer, len, on_talk);
-	else			return procedure_close(d, on_leave);
+
+
+	len = read(pfd[i].fd, buffer, 65536);
+	if ( !len ) {
+		procedure_close(i);
+	} else if ( len < 0 ) {
+		textserver_running = 0;
+	} else {
+		procedure_request(i, buffer, len);
+	}
 }
 
 
 
-int procedure_accept (int d, textserver_msg_t (*handler) (int))
-{
-	textserver_msg_t			answer;
-	
-	answer = handler(d);
-	if ( write(d, answer.data, answer.len) != answer.len )																		return 1;
-	if ( answer.must_be_freed )					free(answer.data);
 
-	return 0;
+
+void procedure_accept ()
+{
+	int							rookie = accept(pfd[0].fd, NULL, NULL);
+
+	pfd_add(rookie);
+	write(rookie, "Hello!\n", 7);
 }
 
 
-
-int procedure_request (int d, char* ask, int len, textserver_msg_t (*handler) (int, char*, int))
+void procedure_request (int i, char* str, int len)
 {
-	textserver_msg_t			answer;
-	
-	answer = handler(d, ask, len);
-	if ( write(d, answer.data, answer.len) != answer.len )																		return 1;
-	if ( answer.must_be_freed )					free(answer.data);
+	write(pfd[i].fd, str, len);
 }
 
 
-
-int procedure_close (int d, void (*handler) (int))
+void procedure_close (int i )
 {
-	handler(d);
-	if ( write(d, textserver_bye_msg.data, textserver_bye_msg.len) != textserver_bye_msg.len )									return 1;
-	if ( textserver_bye_msg.must_be_freed )		free(textserver_bye_msg.data);
-	close(d);
+	write(pfd[i].fd, "Bye!\n", 5);
+	pfd_del(i);
+	close(pfd[i].fd);
 }
