@@ -2,6 +2,10 @@
 	"asdf": [
 		"textserver"
 	],
+	"qwer": [
+		"simplechain"
+	],
+
 	"textserver": [
 		"easyconnect"
 	]

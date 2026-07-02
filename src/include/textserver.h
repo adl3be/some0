@@ -1,3 +1,9 @@
+/*
+ *
+ * Set `textserver_host`, `textserver_max_client` and hooks as needed and call `textserver_run`.
+ *
+ */
+
 #ifndef TEXTSERVER_H
 #define TEXTSERVER_H
 
